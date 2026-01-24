@@ -30,7 +30,94 @@ we don't use a k-fold cross-validation, we have a really limited amount of data 
 This reasoning is valid also for \textbf{MONK2} and \textbf{MONK3}.
 This makes the decision-tree less able to generalise and have a complete picture of the classification problem to be solved.
 
+Going in detail to the single datasets we can say that:
+\begin{itemize}
+    \item \textbf{MONK1} appears to be the less hard of the three to model as there is a clearer rule that depends only on 3 attributes 
+    while the others are mostly irrelevant to predict the classification as true or false
+    \item \textbf{MONK2} is the harder to classify because the pattern to be identified is more complex as discrete attributes have value 1 that is not repeated but simply two of 
+    them, randomically, get the value 1
+    \item \textbf{MONK3} has the lower number of training samples so it is harder for the model to get an accurate classification.
+    Moreover there is a 5\% additional classification noise in the training set which makes the work even harder.
+\end{itemize}
 
+
+
+\section{Assignment 2}
+\textit{The ﬁle dtree.py deﬁnes a function entropy which
+calculates the entropy of a dataset. Import this ﬁle along with the
+monks datasets and use it to calculate the entropy of the training
+datasets.}
+
+\begin{center}
+  \begin{tabular*}{0.9\textwidth}{|c|c@{\extracolsep{\fill}}c|}
+    \hline
+    Dataset & Entropy & \\
+    \hline\hline
+    MONK-1 & 1.0 & \\
+    \hline
+    MONK-2 & 0.957117428264771 & \\
+    \hline
+    MONK-3 & 0.9998061328047111& \\
+    \hline
+  \end{tabular*}
+\end{center}
+
+\section{Assignment 2}
+\textit{Explain entropy for a uniform distribution and a
+non-uniform distribution, present some example distributions with
+high and low entropy.}
+
+
+
+\section{Assignment 3}
+\textit{Use the function averageGain (deﬁned in dtree.py)
+to calculate the expected information gain corresponding to each of
+the six attributes. Note that the attributes are represented as in-
+stances of the class Attribute (deﬁned in monkdata.py) which you
+can access via m.attributes[0], ..., m.attributes[5]. Based on
+the results, which attribute should be used for splitting the examples
+at the root node?}
+
+
+\section{Assignment 4}
+\textit{For splitting we choose the attribute that maximizes
+the information gain, Eq.3. Looking at Eq.3 how does the entropy of
+the subsets, $S_k$, look like when the information gain is maximized?
+How can we motivate using the information gain as a heuristic for
+picking an attribute for splitting? Think about reduction in entropy
+after the split and what the entropy implies.}
+
+
+\section{Assignment 5}
+Build the full decision trees for all three Monk datasets using
+\texttt{buildTree}.  Then, use the function \texttt{check} to measure the performance
+of the decision tree on both the training and test datasets.
+
+For example to built a tree for \texttt{monk1} and compute the performance on the test data
+you could use
+\begin{verbatim}
+import monkdata as m
+import dtree as d
+
+t=d.buildTree(m.monk1, m.attributes);
+print(d.check(t, m.monk1test))
+\end{verbatim}
+
+Compute the train and test set errors for the three Monk datasets for
+the full trees. Were your assumptions about the datasets correct? Explain the 
+results you get for the training and test datasets.
+
+
+\section{Assignment 6}
+\textit{Explain pruning from a bias variance trade-off perspective.}
+
+\section{Assignment 7}
+Evaluate the effect pruning has on the test
+error for the \texttt{monk1} and \texttt{monk3} datasets, in
+particular determine the optimal partition into training and pruning
+by optimizing the parameter \texttt{fraction}.  Plot the
+classification error on the test sets as a function of the parameter
+\texttt{fraction} $\in \{0.3,0.4,0.5,0.6,0.7,0.8\}$. 
 
 
 
