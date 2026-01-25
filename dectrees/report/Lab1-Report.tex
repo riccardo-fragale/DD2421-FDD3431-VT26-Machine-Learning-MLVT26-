@@ -90,14 +90,51 @@ can access via m.attributes[0], ..., m.attributes[5]. Based on
 the results, which attribute should be used for splitting the examples
 at the root node?}
 
+Just for the sake of clarity, this is the equation corresponding to the gain we just talked about.
+\begin{equation}
+\textrm{Gain}(S,A) = \textrm{Entropy}(S) -
+ \sum_{k \in \textrm{values}(A)} \frac{|S_k|}{|S|} \textrm{Entropy}(S_k)
+\end{equation}
+
+\begin{center}
+  Information Gain\\[0.5ex]
+  \begin{tabular*}{\textwidth}{|c@{\extracolsep{\fill}}|c|c|c|c|c|c|}
+    \hline
+    Dataset & $a_1$ & $a_2$ & $a_3$ & $a_4$ & $a_5$ & $a_6$ \\
+    \hline
+    \verb!MONK-1 ! & 0.0753 & 0.0058 & 0.0047 & 0.0263 & 0.2870 & 0.0008 \\
+    \hline
+    \verb!MONK-2 ! & 0.0038 & 0.0025 & 0.0011 & 0.0157 & 0.0173 & 0.0062 \\
+    \hline
+    \verb!MONK-3 ! & 0.0071 & 0.2937 & 0.0008 & 0.0029 & 0.2559 & 0.0071 \\
+    \hline
+  \end{tabular*}
+\end{center}
+
+The attribute that carries the highest information gain is the one to be selected for the splitting of the dataset
+in the most effective way. 
+For \textit{MONK1} dataset, attribute $a_5$ carries an information gain of 0.2870 which is a lot more than any other attribute
+so it's the one to be chosen. A similar approach leads us to select attribute $a_5$ again for \textit{MONK2} dataset even though here the difference
+is far less than in the previous case. As we individuated correctly in \textit{Assignment 0} this dataset is the harder to classify and we have a further proof
+as no single attribute has a very big information gain when known. 
+Finally, for \textit{MONK3} dataset the one that has to be chosen to split the dataset is attribute $a_2$ with an information gain of 0.2937. In this case 
+we have a big gain but there is another relecant attribute which is again $a_5$ but the gain is lower than $a_2$ by 0.04.
+
 
 \section{Assignment 4}
 \textit{For splitting we choose the attribute that maximizes
-the information gain, Eq.3. Looking at Eq.3 how does the entropy of
+the information gain, Eq.1. Looking at Eq.1 how does the entropy of
 the subsets, $S_k$, look like when the information gain is maximized?
 How can we motivate using the information gain as a heuristic for
 picking an attribute for splitting? Think about reduction in entropy
 after the split and what the entropy implies.}
+
+Since we want a high gain, and the value of the entropy of S is fixed, then necessarily maximizing the gain 
+implies that the entropy of the subsets $S_k$ is minimized.
+After the split, the entropy of the single subsets is very low while the entropy of the whole dataset remains the same.
+As entropy is a measure of the unpredictability of a dataset, when we minimize it in the subsets (by choosing a splitting attribute) we are actually on the right path
+towards identifying small groups of the data that have to be classified with the same value as in each single subset $S_k$ we have higher predictability than before the split.
+Hence, we are optimizeing the complexity of the tree (and as a consequence of the learning procedure) by selecting the attribute with the maximum gain.
 
 
 \section{Assignment 5}
