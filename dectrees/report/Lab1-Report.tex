@@ -156,9 +156,41 @@ Compute the train and test set errors for the three Monk datasets for
 the full trees. Were your assumptions about the datasets correct? Explain the 
 results you get for the training and test datasets.
 
+The following are the results we obtained on the three datasets:
+\begin{center}
+  \begin{tabular*}{0.7\textwidth}{|c|@{\extracolsep{\fill}}c|c|}
+    \hline
+    & $E_\textrm{train}$ & $E_\textrm{test}$ \\
+    \hline\hline
+    \verb#MONK-1# & 0.0 & 0.171\\
+    \hline
+    \verb#MONK-2# & 0.0 & 0.308 \\
+    \hline
+    \verb#MONK-3# & 0.0 & 0.056 \\
+    \hline
+  \end{tabular*}
+\end{center}
+
+For all the three datasets we have a train error of exactly 0; this implies that all predictions are done correctly.
+This is absolutely normal as the model was trained on those data so it knows all the necessary characteristics of them
+and the value of each sample. Despite that, having it exactly 0 means that the algorithm may be overfitting 
+the training dataset.
+Regarding test error, we can say that the third tree has the best performances (95\% of predictions correct) while the second one
+offers the worst performances. This is another proof that it's the dataset harder to classify due to the 
+characteristics we mentioned in \textit{Assignment0}.
+
 
 \section{Assignment 6}
 \textit{Explain pruning from a bias variance trade-off perspective.}
+The idea behind the decision tree model is that the algorithm grows without any constraint trying to split
+the data until each leaf of the three is clearly and undoubtedly classifiable.
+This process generally leads to a very very low bias ( since the model is able to distinguish with precision almost every case )
+but at the same time a pretty high variance; since it is very precise, changing just a few samples of the training dataset implies
+relevant changes in the entire structure of the tree. Moreover, we might have overspecialization on the training dataset 
+and so lower ability to generalize and to be really effective while preicting on new samples.
+Since we want to improve our models towards better specialization we decide to remove branches that provide little predicting value (pruning a set of "irrelevant" nodes)
+acccepting an increase in terms of bias as the model is a bit too simple to capture every single detail but in 
+exchange for a significant reduction of the variance (slight changes in the training dataset won't impact as much as before).
 
 \section{Assignment 7}
 Evaluate the effect pruning has on the test
