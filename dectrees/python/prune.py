@@ -44,6 +44,11 @@ if __name__ == '__main__':
 
     header = ['Dataset', 'Fraction', 'Mean error (n = {})'.format(n) , 'Standard deviation']
 
+    # Collect results for all datasets, then plot them together
+    all_mean_errors = []
+    all_std = []
+    labels = []
+
     for dataset_name, dataset_train, dataset_test in zip(dataset_names, datasets_train, datasets_test):
 
         data = []
@@ -60,7 +65,6 @@ if __name__ == '__main__':
                 best_tree = get_best_tree(built_tree)
                 errors.append(1 - dt.check(best_tree,dataset_test))
             
-            
             mean_errors.append(round(statistics.mean(errors),decimals))
 
             std.append(round(statistics.stdev(errors),decimals))
@@ -68,13 +72,20 @@ if __name__ == '__main__':
             data.append([dataset_name, fraction, round(statistics.mean(errors),decimals), statistics.mean(std)])
         
         print(tabulate(data, header), '\n')
-    
-        plt.errorbar(fractions, mean_errors, yerr=std, marker='o')
 
-        plt.title('{} (n = {})'.format('Monk Dataset', n))
-        plt.xlabel('fraction')
-        plt.ylabel('mean error')
-        plt.legend(['Monk-1','Monk-3']) #loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True, ncol=3
-        plt.show()
+        all_mean_errors.append(mean_errors)
+        all_std.append(std)
+        labels.append(dataset_name)
+
+    # Plot all datasets on the same axes and save the figure
+    for mean_errors, std, label in zip(all_mean_errors, all_std, labels):
+        plt.errorbar(fractions, mean_errors, yerr=std, marker='o', label=label)
+
+    plt.title('{} (n = {})'.format('Monk Dataset', n))
+    plt.xlabel('fraction')
+    plt.ylabel('mean error')
+    plt.legend()  # loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True, ncol=3
+    plt.savefig('ass7lab1.png', dpi=300, bbox_inches='tight')
+    plt.show()
 
 

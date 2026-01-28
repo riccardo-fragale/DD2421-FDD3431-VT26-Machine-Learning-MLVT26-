@@ -87,6 +87,11 @@ OUTPUT Lab1-Report.pdf
 INPUT /usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmtt10.tfm
+INPUT ../python/ass7lab1.png
+INPUT ../python/ass7lab1.png
+INPUT ../python/ass7lab1.png
+INPUT ../python/ass7lab1.png
+INPUT ../python/ass7lab1.png
 INPUT Lab1-Report.aux
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb

@@ -200,6 +200,23 @@ by optimizing the parameter \texttt{fraction}.  Plot the
 classification error on the test sets as a function of the parameter
 \texttt{fraction} $\in \{0.3,0.4,0.5,0.6,0.7,0.8\}$. 
 
+The following is the image with the data obtained applying pruning procedure 
+and determining the optimal partition fraction.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\includegraphics[width=0.9\textwidth]{../python/ass7lab1.png}}
+  \caption{Test classification error as a function of the training/pruning fraction (MONK datasets, n = 500).}
+  \label{fig:ass7lab1}
+\end{figure}
+
+We can derive from the graph that whatever fraction between 0.5 and 0.7 is okay for having the best model possible.
+The ideal one is around 0.6 for both MONK1 and MONK3.
+They offer a very limited error and a reduced variance. It is clear that we need a bit more data for the training rather than
+from validation.
+
+
+
 
 
 \end{document}
