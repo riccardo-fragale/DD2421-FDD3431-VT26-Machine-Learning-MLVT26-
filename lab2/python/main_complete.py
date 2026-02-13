@@ -201,6 +201,6 @@ if __name__ == "__main__":
     
     # Example: Using RBF kernel with heuristic sigma (omit 'sigma' in kwargs)
     # You can change to 'linear' or 'polynomial' here.
-    model = train_svm(inputs, targets, C=10.0, kernel_type='rbf') 
+    model = train_svm(inputs, targets, C=10.0, kernel_type='polynomial') 
     
     plot_results_enhanced(inputs, targets, model)
