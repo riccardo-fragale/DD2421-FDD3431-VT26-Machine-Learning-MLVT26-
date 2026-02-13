@@ -1,4 +1,4 @@
-import numpy, random, math
+import numpy as np, random, math
 from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 import statistics
@@ -8,7 +8,7 @@ N = 1000
 C = 0.001
 
 def main():
-    start = numpy.zeros(N)
+    start = np.zeros(N)
     ret = minimize(objective ,start,bounds=[(0,C) for b in range(N)], constraints={'type':'eq', 'fun':zerofun})
     #alpha = ret[’x’]
 
@@ -34,7 +34,7 @@ def sigma(inputs):
     distance = []
     for i in range(len(inputs)):
         for j in range(len(inputs)):
-            distance.append(numpy.linalg.norm(inputs[i]-inputs[j]))
+            distance.append(np.linalg.norm(inputs[i]-inputs[j]))
     return statistics.median(distance)
     
 
