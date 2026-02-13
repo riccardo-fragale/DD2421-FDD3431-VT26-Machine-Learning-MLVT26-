@@ -4,13 +4,12 @@ import random
 
 def generate_and_plot_data():
     # 1. Set the random seed for reproducibility
-    # Hint: If you insert a call “numpy.random.seed(100)”... you will get the same random data
     np.random.seed(100)
     
     # 2. Generate Class A
     # Class A consists of two clusters:
-    # - 10 points around (1.5, 0.5)
-    # - 10 points around (-1.5, 0.5)
+    # 10 points around (1.5, 0.5)
+    # 10 points around (-1.5, 0.5)
     # Standard deviation is 0.2 for both.
     
     cluster_a1 = np.random.randn(10, 2) * 0.2 + [1.5, 0.5]
@@ -19,7 +18,7 @@ def generate_and_plot_data():
     
     # 3. Generate Class B
     # Class B consists of one cluster:
-    # - 20 points around (0.0, -0.5)
+    # 20 points around (0.0, -0.5)
     # Standard deviation is 0.2.
     classB = np.random.randn(20, 2) * 0.2 + [0.0, -0.5]
     
