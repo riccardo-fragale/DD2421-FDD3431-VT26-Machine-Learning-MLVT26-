@@ -5,7 +5,6 @@ import statistics
 from scipy.optimize import minimize
 from scipy.spatial.distance import cdist, pdist
 
-# --- 1. Data Generation ---
 def generate_data():
     np.random.seed(100)
     classA = np.concatenate((
@@ -21,7 +20,7 @@ def generate_data():
     random.shuffle(permute)
     return inputs[permute, :], targets[permute]
 
-# --- 2. Kernel Functions ---
+# kernels
 def linear_kernel(x, y):
     return np.dot(x, y.T)
 
@@ -38,9 +37,8 @@ def get_kernel_matrix(X, kernel_type, **kwargs):
     elif kernel_type == 'rbf': return rbf_kernel(X, X, sigma=kwargs.get('sigma', 0.5))
     else: raise ValueError("Unknown kernel")
 
-# --- 3. SVM Training ---
 def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
-    # Heuristic for RBF if sigma is not provided
+    # heuristic for RBF if sigma is not provided
     if kernel_type == 'rbf' and kwargs.get('sigma') is None:
         distances = pdist(inputs, 'euclidean')
         kwargs['sigma'] = statistics.median(distances)
@@ -65,7 +63,7 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
     support_alpha = alpha[sv_indices]
     support_targets = targets[sv_indices]
     
-    # Bias calculation
+    # calculate bias
     margin_indices = (alpha > 1e-5) & (alpha < C - 1e-5)
     if np.sum(margin_indices) > 0:
         b_values = []
@@ -80,7 +78,7 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
              'sv_alpha': support_alpha, 'sv_targets': support_targets, 
              'kernel_type': kernel_type, 'kwargs': kwargs }
 
-# --- 4. Indicator Function ---
+# indicator function 
 def indicator(model, x_new):
     sv, sv_alpha, sv_t = model['sv'], model['sv_alpha'], model['sv_targets']
     k_type, kwargs = model['kernel_type'], model['kwargs']
@@ -91,19 +89,15 @@ def indicator(model, x_new):
         
     return np.dot(sv_alpha * sv_t, k_val) + model['b']
 
-# --- 5. Multi-Plotting Function ---
+# multi-plotting function
 def plot_subplot(ax, inputs, targets, model, title):
-    # Background
     ax.set_facecolor('#f0f0f5')
     
-    # Data
     ax.plot([p[0] for p in inputs[targets==1]], [p[1] for p in inputs[targets==1]], 'b.', label='A')
     ax.plot([p[0] for p in inputs[targets==-1]], [p[1] for p in inputs[targets==-1]], 'r.', label='B')
     
-    # SVs
     ax.scatter(model['sv'][:, 0], model['sv'][:, 1], s=100, facecolors='none', edgecolors='g', linewidth=1.5)
     
-    # Boundary
     x_min, x_max, y_min, y_max = -2.5, 2.5, -1.5, 1.5
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, 100), np.linspace(y_min, y_max, 100))
     Z = indicator(model, np.c_[xx.ravel(), yy.ravel()])
@@ -114,25 +108,24 @@ def plot_subplot(ax, inputs, targets, model, title):
     ax.set_title(title, fontsize=10, fontweight='bold')
     ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-# --- Main Execution ---
 if __name__ == "__main__":
     inputs, targets = generate_data()
     
-    # Setup 2x3 Grid
+    # setup
     fig, axes = plt.subplots(2, 3, figsize=(15, 8))
     plt.subplots_adjust(hspace=0.3)
     
-    # --- ROW 1: Polynomial Kernel (Varying p) ---
+    #row 1: polynomial kernel (varying p) 
     p_values = [1, 2, 5]
     for i, p in enumerate(p_values):
-        print(f"Training Poly p={p}...")
+        print(f"Training polynomial kernel with p={p}")
         model = train_svm(inputs, targets, C=10.0, kernel_type='polynomial', p=p)
         plot_subplot(axes[0, i], inputs, targets, model, f"Poly Kernel (p={p})")
 
-    # --- ROW 2: RBF Kernel (Varying Sigma) ---
-    sigma_values = [0.2, 1.0, 4.0] # Small, Medium, Large
+    # row 2: RBF Kernel (varying sigma)
+    sigma_values = [0.2, 1.0, 4.0] # three different values
     for i, sigma in enumerate(sigma_values):
-        print(f"Training RBF sigma={sigma}...")
+        print(f"Training rbf kernel with sigma={sigma}")
         model = train_svm(inputs, targets, C=10.0, kernel_type='rbf', sigma=sigma)
         plot_subplot(axes[1, i], inputs, targets, model, f"RBF Kernel (σ={sigma})")
 

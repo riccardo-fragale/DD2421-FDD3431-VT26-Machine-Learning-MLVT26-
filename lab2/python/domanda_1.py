@@ -5,7 +5,7 @@ import statistics
 from scipy.optimize import minimize
 from scipy.spatial.distance import cdist, pdist
 
-# --- 1. Flexible Data Generation ---
+# flexible data generation 
 def generate_data(
     classA_centers=[(1.5, 0.5), (-1.5, 0.5)], 
     classB_center=(0.0, -0.5), 
@@ -20,7 +20,7 @@ def generate_data(
     """
     np.random.seed(seed) 
     
-    # Generate Class A (combines multiple clusters)
+    # generate class A (combines multiple clusters)
     classA_parts = []
     for center in classA_centers:
         # Generate 10 points per center for A
@@ -28,7 +28,7 @@ def generate_data(
         classA_parts.append(part)
     classA = np.concatenate(classA_parts)
     
-    # Generate Class B (Single cluster, 20 points)
+    # generate class B (single cluster of 20 points)
     classB = np.random.randn(20, 2) * spread + classB_center
     
     inputs = np.concatenate((classA, classB))
@@ -37,7 +37,7 @@ def generate_data(
         -np.ones(classB.shape[0])
     ))
     
-    # Shuffle
+    # shuffling
     N = inputs.shape[0]
     permute = list(range(N))
     random.seed(seed)
@@ -48,7 +48,7 @@ def generate_data(
     
     return inputs, targets
 
-# --- 2. Kernel Functions ---
+# kernels
 def linear_kernel(x, y):
     return np.dot(x, y.T)
 
@@ -69,9 +69,9 @@ def get_kernel_matrix(X, kernel_type, **kwargs):
     else:
         raise ValueError("Unknown kernel type")
 
-# --- 3. SVM Training ---
+
 def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
-    # Automatic Heuristic for Sigma if using RBF
+    # heuristic for sigma if using RBF
     if kernel_type == 'rbf' and kwargs.get('sigma') is None:
         distances = pdist(inputs, 'euclidean')
         sigma = statistics.median(distances)
@@ -82,11 +82,10 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
     K = get_kernel_matrix(inputs, kernel_type, **kwargs)
     P = np.outer(targets, targets) * K
     
-    # Dual Objective
+    # dual objective
     def objective(alpha):
         return 0.5 * np.dot(alpha, np.dot(P, alpha)) - np.sum(alpha)
     
-    # Constraint
     def zerofun(alpha):
         return np.dot(alpha, targets)
     
@@ -104,13 +103,13 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
 
     alpha = ret.x
     
-    # Extract Support Vectors
+    # support vectors
     sv_indices = alpha > 1e-5
     support_vectors = inputs[sv_indices]
     support_alpha = alpha[sv_indices]
     support_targets = targets[sv_indices]
     
-    # Calculate Bias
+    # bias calculation
     margin_indices = (alpha > 1e-5) & (alpha < C - 1e-5)
     if np.sum(margin_indices) > 0:
         b_values = []
@@ -128,7 +127,7 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
         'kernel_type': kernel_type, 'kwargs': kwargs 
     }
 
-# --- 4. Indicator Function ---
+# indicator function
 def indicator(model, x_new):
     sv = model['sv']
     sv_alpha = model['sv_alpha']
@@ -147,24 +146,24 @@ def indicator(model, x_new):
     weights = sv_alpha * sv_targets
     return np.dot(weights, k_val) + b
 
-# --- 5. Enhanced Plotting ---
+# plotting
 def plot_results_enhanced(inputs, targets, model, title_suffix, filename):
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.set_facecolor('#f0f0f5') 
     ax.grid(True, linestyle='--', color='white', linewidth=1.5, alpha=0.8)
     
-    # Plot Data
+    
     ax.plot([p[0] for p in inputs[targets==1]], [p[1] for p in inputs[targets==1]], 
             'b.', markersize=12, label='Class A (+1)')
     ax.plot([p[0] for p in inputs[targets==-1]], [p[1] for p in inputs[targets==-1]], 
             'r.', markersize=12, label='Class B (-1)')
     
-    # Highlight Support Vectors
+    
     if len(model['sv']) > 0:
         ax.scatter(model['sv'][:, 0], model['sv'][:, 1], 
                    s=150, facecolors='none', edgecolors='g', linewidth=2, label='Support Vectors')
     
-    # Contours
+    
     x_min, x_max = np.min(inputs[:,0])-1, np.max(inputs[:,0])+1
     y_min, y_max = np.min(inputs[:,1])-1, np.max(inputs[:,1])+1
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, 200), np.linspace(y_min, y_max, 200))
@@ -185,38 +184,38 @@ def plot_results_enhanced(inputs, targets, model, title_suffix, filename):
     plt.savefig(filename)
     plt.show()
 
-# --- Main Experiments ---
+
 if __name__ == "__main__":
     
-    # --- Experiment 1: Easy (Far apart, small spread) ---
-    print("\n--- RUN 1: Easy Configuration (Linearly Separable) ---")
+    
+    print("\n RUN 1: Easy Configuration (Linearly Separable) ")
     inputs_1, targets_1 = generate_data(
         classA_centers=[(2.0, 2.0), (-2.0, 2.0)], # Moved up and out
         classB_center=(0.0, -2.0),                # Moved down
         spread=0.1                                # Tighter clusters
     )
-    # Using Linear Kernel
+    # using linear kernel
     model_1 = train_svm(inputs_1, targets_1, C=100.0, kernel_type='linear')
     plot_results_enhanced(inputs_1, targets_1, model_1, "Easy Separation", "svm_experiment_1.pdf")
 
-    # --- Experiment 2: Medium/Hard (Closer, larger spread) ---
-    print("\n--- RUN 2: Hard Configuration (Closer, Higher Spread) ---")
+    # experiment 2: medium/hard (closer, larger spread) ---
+    print("\n RUN 2: Hard Configuration (closer, larger spread) ")
     inputs_2, targets_2 = generate_data(
         classA_centers=[(1.0, 0.5), (-1.0, 0.5)], # Closer to center
         classB_center=(0.0, 0.0),                 # Right in the middle
         spread=0.4                                # Messier
     )
-    # Using RBF Kernel (Linear would fail here)
+    # RBF Kernel (linear would fail here)
     model_2 = train_svm(inputs_2, targets_2, C=10.0, kernel_type='rbf')
     plot_results_enhanced(inputs_2, targets_2, model_2, "Overlapping Clusters", "svm_experiment_2.pdf")
 
-    # --- Experiment 3: Very Hard (High Overlap - Testing Limits) ---
-    print("\n--- RUN 3: Very Hard (High Overlap) ---")
+    # Experiment 3: very hard (high overlap - testing limits)
+    print("\n RUN 3: very hard (high overlap) ")
     inputs_3, targets_3 = generate_data(
         classA_centers=[(0.5, 0.5), (-0.5, 0.5)], # Very tight
         classB_center=(0.0, 0.2),                 # Almost on top of A
         spread=0.6                                # Huge spread, lots of noise
     )
-    # Using RBF with high C to try and force fit, or low C to ignore errors
+    # RBF with high C to try and force fit, or low C to ignore errors
     model_3 = train_svm(inputs_3, targets_3, C=1.0, kernel_type='rbf')
     plot_results_enhanced(inputs_3, targets_3, model_3, "High Noise/Overlap", "svm_experiment_3.pdf")

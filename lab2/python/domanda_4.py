@@ -5,7 +5,7 @@ import statistics
 from scipy.optimize import minimize
 from scipy.spatial.distance import cdist, pdist
 
-# --- 1. Data Generation ---
+#data generation 
 def generate_data():
     np.random.seed(100)
     classA = np.concatenate((
@@ -21,7 +21,7 @@ def generate_data():
     random.shuffle(permute)
     return inputs[permute, :], targets[permute]
 
-# --- 2. Kernel Functions ---
+# kernel functions 
 def linear_kernel(x, y):
     return np.dot(x, y.T)
 
@@ -38,7 +38,7 @@ def get_kernel_matrix(X, kernel_type, **kwargs):
     elif kernel_type == 'rbf': return rbf_kernel(X, X, sigma=kwargs.get('sigma', 0.5))
     else: raise ValueError("Unknown kernel")
 
-# --- 3. SVM Training ---
+# SVM Training
 def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
     if kernel_type == 'rbf' and kwargs.get('sigma') is None:
         distances = pdist(inputs, 'euclidean')
@@ -74,7 +74,7 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
     return {'sv': sv, 'sv_alpha': sv_alpha, 'sv_targets': sv_targets, 
             'b': b, 'kernel_type': kernel_type, 'kwargs': kwargs}
 
-# --- 4. Indicator Function ---
+# indicator function 
 def indicator(model, x_new):
     sv, sv_a, sv_t = model['sv'], model['sv_alpha'], model['sv_targets']
     k_type, kwargs = model['kernel_type'], model['kwargs']
@@ -83,7 +83,7 @@ def indicator(model, x_new):
     elif k_type == 'rbf': k_val = rbf_kernel(sv, x_new, sigma=kwargs.get('sigma', 0.5))
     return np.dot(sv_a * sv_t, k_val) + model['b']
 
-# --- 5. Plotting ---
+# plotting 
 def plot_subplot(ax, inputs, targets, model, title):
     ax.set_facecolor('#f8f8f8')
     ax.plot(inputs[targets==1, 0], inputs[targets==1, 1], 'b.', markersize=6)
@@ -97,7 +97,7 @@ def plot_subplot(ax, inputs, targets, model, title):
     ax.set_title(title, fontsize=9)
     ax.set_xticks([]); ax.set_yticks([])
 
-# --- Main Execution ---
+# main execution
 if __name__ == "__main__":
     inputs, targets = generate_data()
     C_values = [0.1, 1, 100]
@@ -108,8 +108,8 @@ if __name__ == "__main__":
     
     for row_idx, k_type in enumerate(kernels):
         for col_idx, C in enumerate(C_values):
-            print(f"Training {k_type} with C={C}...")
-            # Use default p=3 for poly and heuristic sigma for RBF
+            print(f"Training {k_type} kernel with C={C}")
+            # use default p=3 for poly and heuristic sigma for RBF
             model = train_svm(inputs, targets, C=C, kernel_type=k_type)
             plot_subplot(axes[row_idx, col_idx], inputs, targets, model, f"{k_type.upper()} | C={C}")
     

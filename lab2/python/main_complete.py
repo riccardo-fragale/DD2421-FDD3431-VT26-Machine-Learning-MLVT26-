@@ -5,17 +5,15 @@ import statistics
 from scipy.optimize import minimize
 from scipy.spatial.distance import cdist, pdist
 
-# --- 1. Data Generation (Section 5) ---
 def generate_data():
-    np.random.seed(100) # Reproducibility
+    np.random.seed(100) # same seed to make tests reproducibles
     
-    # Class A: Two clusters
+    # Class creation
     classA = np.concatenate((
         np.random.randn(10, 2) * 0.2 + [1.5, 0.5],
         np.random.randn(10, 2) * 0.2 + [-1.5, 0.5]
     ))
     
-    # Class B: One cluster
     classB = np.random.randn(20, 2) * 0.2 + [0.0, -0.5]
     
     inputs = np.concatenate((classA, classB))
@@ -24,60 +22,64 @@ def generate_data():
         -np.ones(classB.shape[0])
     ))
     
-    # Shuffle
+    # shuffling the data
     N = inputs.shape[0]
     permute = list(range(N))
     random.seed(100)
     random.shuffle(permute)
     
+    # Creating inputs and targets
     inputs = inputs[permute, :]
     targets = targets[permute]
     
     return inputs, targets
 
-# --- 2. Kernel Functions ---
+# linear kernel
 def linear_kernel(x, y):
     return np.dot(x, y.T)
 
+# polynomial kernel
 def polynomial_kernel(x, y, p=3):
     return (np.dot(x, y.T) + 1) ** p
 
+# rbf kernel
 def rbf_kernel(x, y, sigma=0.5):
-    # Computes pairwise squared euclidean distance efficiently
+    # Compute pairwise euclidean distance 
     dists = cdist(x, y, 'sqeuclidean')
     return np.exp(-dists / (2 * sigma**2))
 
+# split kernel creation based on kernel type
 def get_kernel_matrix(X, kernel_type, **kwargs):
     if kernel_type == 'linear':
         return linear_kernel(X, X)
     elif kernel_type == 'polynomial':
         return polynomial_kernel(X, X, p=kwargs.get('p', 3))
     elif kernel_type == 'rbf':
-        # Sigma should have been handled in train_svm, but fallback safely
+        # Sigma is handled in train_svm, but safety value 0.5
         return rbf_kernel(X, X, sigma=kwargs.get('sigma', 0.5))
     else:
         raise ValueError("Unknown kernel type")
 
-# --- 3. SVM Training ---
-def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
-    # Automatic Sigma Heuristic for RBF
+# Training
+def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):   #kernel type is by default linear but could be changed
+    # sigma heuristic for RBF
     if kernel_type == 'rbf' and kwargs.get('sigma') is None:
-        # Compute all pairwise euclidean distances
+        # compute all pairwise euclidean distances
         distances = pdist(inputs, 'euclidean')
-        # Set sigma to the median distance
+        # sigma = median distance
         sigma = statistics.median(distances)
         kwargs['sigma'] = sigma
-        print(f"Heuristic: calculated sigma = {sigma:.4f}")
+        print(f"Calculated sigma = {sigma:.4f}")
     
     N = inputs.shape[0]
     K = get_kernel_matrix(inputs, kernel_type, **kwargs)
     P = np.outer(targets, targets) * K
     
-    # Dual Objective Function
+    # dual objective function
     def objective(alpha):
         return 0.5 * np.dot(alpha, np.dot(P, alpha)) - np.sum(alpha)
     
-    # Constraint: sum(alpha * targets) = 0
+    # respecting the contraint sum(alpha * targets) = 0
     def zerofun(alpha):
         return np.dot(alpha, targets)
     
@@ -85,21 +87,20 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
     constraints = {'type': 'eq', 'fun': zerofun}
     start = np.zeros(N)
     
-    # Minimize
+    # minimizing
     ret = minimize(objective, start, bounds=bounds, constraints=constraints)
     if not ret.success:
-        print("Warning: Optimization did not converge.")
+        print("Optimization did not converge.")
         
     alpha = ret.x
     
-    # Extract Support Vectors
+    # extract the support vectors
     sv_indices = alpha > 1e-5
     support_vectors = inputs[sv_indices]
     support_alpha = alpha[sv_indices]
     support_targets = targets[sv_indices]
     
-    # Calculate Bias (b)
-    # Average over margin support vectors (0 < alpha < C)
+    # average over margin support vectors (0 < alpha < C)
     margin_indices = (alpha > 1e-5) & (alpha < C - 1e-5)
     
     if np.sum(margin_indices) > 0:
@@ -110,7 +111,8 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
         b = np.mean(b_values)
     else:
         b = 0.0 
-        
+
+    # return tuple containing all the info needed 
     return {
         'alpha': alpha,
         'b': b,
@@ -121,7 +123,7 @@ def train_svm(inputs, targets, C, kernel_type='linear', **kwargs):
         'kwargs': kwargs 
     }
 
-# --- 4. Indicator Function ---
+# Indicator function
 def indicator(model, x_new):
     sv = model['sv']
     sv_alpha = model['sv_alpha']
@@ -140,15 +142,15 @@ def indicator(model, x_new):
     weights = sv_alpha * sv_targets
     return np.dot(weights, k_val) + b
 
-# --- 5. Enhanced Plotting ---
+# plotting
 def plot_results_enhanced(inputs, targets, model):
     fig, ax = plt.subplots(figsize=(10, 8))
     
-    # Custom Background and Grid
+    # background and grid
     ax.set_facecolor('#f0f0f5') 
     ax.grid(True, linestyle='--', color='white', linewidth=1.5, alpha=0.8)
     
-    # Plot Data Points
+    # data points
     ax.plot([p[0] for p in inputs[targets==1]], 
             [p[1] for p in inputs[targets==1]], 
             'b.', markersize=12, label='Class A (+1)')
@@ -157,12 +159,12 @@ def plot_results_enhanced(inputs, targets, model):
             [p[1] for p in inputs[targets==-1]], 
             'r.', markersize=12, label='Class B (-1)')
     
-    # Highlight Support Vectors
+    # highlight support vectors
     ax.scatter(model['sv'][:, 0], model['sv'][:, 1], 
                s=200, facecolors='none', edgecolors='g', linewidth=2, 
                label='Support Vectors')
     
-    # Decision Boundary and Margins
+    # decision boundary and margins
     x_min, x_max = -2.5, 2.5
     y_min, y_max = -1.5, 1.5
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, 200),
@@ -179,7 +181,6 @@ def plot_results_enhanced(inputs, targets, model):
     
     ax.clabel(CS, inline=True, fontsize=10, fmt={-1:'-1', 0:'0', 1:'+1'})
     
-    # Labels and Fonts
     font_title = {'family': 'serif', 'color':  'darkred', 'weight': 'bold', 'size': 16}
     font_label = {'family': 'serif', 'color':  'black', 'weight': 'normal', 'size': 14}
     
@@ -187,20 +188,19 @@ def plot_results_enhanced(inputs, targets, model):
     ax.set_xlabel("Feature $x_1$", fontdict=font_label)
     ax.set_ylabel("Feature $x_2$", fontdict=font_label)
     
-    ax.axis('equal') # Mandatory
+    ax.axis('equal') 
     
     legend = ax.legend(frameon=True, facecolor='white', framealpha=0.9)
     plt.setp(legend.get_texts(), family='serif')
     
-    plt.savefig('svmplot_enhanced.pdf') # Mandatory
-    plt.show() # Mandatory
+    plt.savefig('svmplot_enhanced.pdf') 
+    plt.show() 
 
-# --- Main Execution ---
+
 if __name__ == "__main__":
     inputs, targets = generate_data()
     
-    # Example: Using RBF kernel with heuristic sigma (omit 'sigma' in kwargs)
-    # You can change to 'linear' or 'polynomial' here.
+    # kernel type modifiable
     model = train_svm(inputs, targets, C=10.0, kernel_type='polynomial') 
     
     plot_results_enhanced(inputs, targets, model)
