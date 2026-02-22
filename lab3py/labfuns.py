@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 from matplotlib.patches import Ellipse
 from matplotlib.colors import ColorConverter
 import random as rnd
-from sklearn.datasets.samples_generator import make_blobs
+from sklearn.datasets import make_blobs
 from sklearn import decomposition, tree
 
 # import seaborn as sns
