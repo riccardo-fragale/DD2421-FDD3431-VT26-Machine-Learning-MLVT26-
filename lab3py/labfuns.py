@@ -106,20 +106,21 @@ def trteSplitEven(X,y,pcSplit,seed=None):
 def fetchDataset(dataset='iris'):
     if dataset == 'iris':
         X = genfromtxt('irisX.txt', delimiter=',')
-        y = genfromtxt('irisY.txt', delimiter=',',dtype=np.int)-1
+        y = genfromtxt('irisY.txt', delimiter=',',dtype=int)-1
         pcadim = 2
     elif dataset == 'wine':
         X = genfromtxt('wineX.txt', delimiter=',')
-        y = genfromtxt('wineY.txt', delimiter=',',dtype=np.int)-1
+        y = genfromtxt('wineY.txt', delimiter=',',dtype=int)-1
         pcadim = 0
     elif dataset == 'olivetti':
         X = genfromtxt('olivettifacesX.txt', delimiter=',')
         X = X/255
-        y = genfromtxt('olivettifacesY.txt', delimiter=',',dtype=np.int)
+        y = genfromtxt('olivettifacesY.txt', delimiter=',',dtype=int)
         pcadim = 20
     elif dataset == 'vowel':
         X = genfromtxt('vowelX.txt', delimiter=',')
-        y = genfromtxt('vowelY.txt', delimiter=',',dtype=np.int)
+        y = genfromtxt('vowelY.txt', delimiter=',',dtype=int)
+
         pcadim = 0
     else:
         print("Please specify a dataset!")
