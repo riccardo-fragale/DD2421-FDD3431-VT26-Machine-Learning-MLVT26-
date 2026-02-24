@@ -254,8 +254,8 @@ def plotBoundary(classifier, dataset='iris', split=0.7):
             pass
         trClIdx = np.where(y[trIdx] == c)[0]
         teClIdx = np.where(y[teIdx] == c)[0]
-        plt.scatter(xTr[trClIdx,0],xTr[trClIdx,1],marker='o',c=color,s=40,alpha=0.5, label="Class "+str(c)+" Train")
-        plt.scatter(xTe[teClIdx,0],xTe[teClIdx,1],marker='*',c=color,s=50,alpha=0.8, label="Class "+str(c)+" Test")
+        plt.scatter(xTr[trClIdx,0],xTr[trClIdx,1],marker='o',color=color,s=40,alpha=0.5, label="Class "+str(c)+" Train")
+        plt.scatter(xTe[teClIdx,0],xTe[teClIdx,1],marker='*',color=color,s=50,alpha=0.8, label="Class "+str(c)+" Test")
     plt.legend(bbox_to_anchor=(1., 1), loc=2, borderaxespad=0.)
     fig.subplots_adjust(right=0.7)
     plt.show()
@@ -285,7 +285,9 @@ class DecisionTreeClassifier(object):
 
     def trainClassifier(self, Xtr, yTr, W=None):
         rtn = DecisionTreeClassifier()
-        rtn.classifier = tree.DecisionTreeClassifier(max_depth=Xtr.shape[1]/2+1)
+        # ensure max_depth is an integer >= 1
+        max_depth = max(1, int(Xtr.shape[1]//2 + 1))
+        rtn.classifier = tree.DecisionTreeClassifier(max_depth=max_depth)
         if W is None:
             rtn.classifier.fit(Xtr, yTr)
         else:
